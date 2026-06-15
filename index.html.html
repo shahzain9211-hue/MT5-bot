@@ -1,0 +1,288 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>MT5 Bot — Project Brief</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@500;600;700&family=Inter:wght@400;500;600&family=JetBrains+Mono:wght@500;600&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --bg:#EEF0F3;
+    --card:#FFFFFF;
+    --ink:#111418;
+    --muted:#5B616E;
+    --line:#E3E6EB;
+    --accent:#1F6FEB;
+    --accent-soft:rgba(31,111,235,.08);
+    --wa:#1FA855;
+    --wa-dark:#178a45;
+    --display:'Space Grotesk',system-ui,-apple-system,'Segoe UI',sans-serif;
+    --body:'Inter',system-ui,-apple-system,'Segoe UI',sans-serif;
+    --mono:'JetBrains Mono',ui-monospace,Menlo,Consolas,monospace;
+  }
+  *{box-sizing:border-box}
+  html{-webkit-text-size-adjust:100%}
+  body{
+    margin:0;background:var(--bg);color:var(--ink);
+    font-family:var(--body);line-height:1.5;
+    padding:0 16px 140px;
+  }
+  .wrap{max-width:640px;margin:0 auto}
+
+  /* terminal header */
+  header{
+    background:#0F1115;color:#F4F5F7;border-radius:14px;
+    margin-top:20px;padding:20px 22px 22px;position:relative;overflow:hidden;
+  }
+  .termbar{
+    font-family:var(--mono);font-size:11px;letter-spacing:.14em;
+    color:#7E8696;text-transform:uppercase;display:flex;gap:10px;align-items:center;
+    flex-wrap:wrap;
+  }
+  .dot{width:7px;height:7px;border-radius:50%;background:var(--wa);
+    box-shadow:0 0 0 3px rgba(31,168,85,.18)}
+  header h1{
+    font-family:var(--display);font-weight:700;font-size:27px;line-height:1.08;
+    margin:14px 0 8px;letter-spacing:-.01em;
+  }
+  header p{margin:0;color:#AEB4C0;font-size:14px;max-width:42ch}
+  .spark{position:absolute;right:-4px;bottom:-2px;opacity:.5}
+  @media (max-width:420px){.spark{display:none}}
+
+  /* progress */
+  .progress{
+    position:sticky;top:10px;z-index:5;margin-top:14px;
+    background:rgba(255,255,255,.82);backdrop-filter:blur(8px);
+    border:1px solid var(--line);border-radius:11px;
+    padding:10px 14px;display:flex;align-items:center;gap:12px;
+  }
+  .bar{flex:1;height:6px;background:var(--line);border-radius:99px;overflow:hidden}
+  .bar i{display:block;height:100%;width:0;background:var(--accent);
+    border-radius:99px;transition:width .35s ease}
+  .pcount{font-family:var(--mono);font-size:12px;color:var(--muted);
+    font-weight:600;white-space:nowrap}
+
+  /* sections */
+  section{margin-top:26px}
+  .eyebrow{
+    font-family:var(--mono);font-size:11px;letter-spacing:.16em;
+    text-transform:uppercase;color:var(--accent);font-weight:600;
+    display:flex;align-items:center;gap:9px;margin:0 4px 12px;
+  }
+  .eyebrow span{flex:1;height:1px;background:var(--line)}
+
+  .q{
+    background:var(--card);border:1px solid var(--line);border-radius:13px;
+    padding:15px 16px;margin-bottom:11px;transition:border-color .2s,box-shadow .2s;
+  }
+  .q:focus-within{border-color:var(--accent);box-shadow:0 0 0 4px var(--accent-soft)}
+  .q.done{border-color:rgba(31,168,85,.45)}
+  .qhead{display:flex;gap:10px;align-items:baseline}
+  .qnum{font-family:var(--mono);font-size:12px;font-weight:600;color:var(--accent);
+    flex:none;padding-top:1px}
+  .q.done .qnum{color:var(--wa)}
+  label{font-weight:500;font-size:15px;color:var(--ink);display:block}
+  .hint{font-size:13px;color:var(--muted);margin:4px 0 0 0}
+  textarea{
+    width:100%;margin-top:11px;border:none;border-top:1px solid var(--line);
+    background:transparent;font-family:var(--body);font-size:15px;color:var(--ink);
+    padding:11px 0 2px;resize:none;line-height:1.45;min-height:42px;outline:none;
+  }
+  textarea::placeholder{color:#AAB0BB}
+
+  /* footer actions */
+  .actions{
+    position:fixed;left:0;right:0;bottom:0;z-index:20;
+    background:linear-gradient(to top,var(--bg) 72%,rgba(238,240,243,0));
+    padding:16px;
+  }
+  .actions-inner{max-width:640px;margin:0 auto;display:flex;gap:10px}
+  button{
+    font-family:var(--display);font-weight:600;font-size:15px;cursor:pointer;
+    border-radius:12px;padding:14px 16px;border:1px solid transparent;
+    transition:transform .08s ease,background .2s,box-shadow .2s;
+  }
+  button:active{transform:translateY(1px)}
+  .btn-wa{flex:1.4;background:var(--wa);color:#fff;box-shadow:0 6px 16px rgba(31,168,85,.28)}
+  .btn-wa:hover{background:var(--wa-dark)}
+  .btn-copy{flex:1;background:#fff;color:var(--ink);border-color:var(--line)}
+  .btn-copy:hover{border-color:#c9cdd6}
+  button:focus-visible{outline:3px solid var(--accent);outline-offset:2px}
+
+  /* toast */
+  .toast{
+    position:fixed;left:50%;bottom:92px;transform:translate(-50%,12px);
+    background:var(--ink);color:#fff;padding:11px 18px;border-radius:10px;
+    font-size:14px;font-weight:500;opacity:0;pointer-events:none;
+    transition:opacity .25s,transform .25s;z-index:30;max-width:90vw;text-align:center;
+  }
+  .toast.show{opacity:1;transform:translate(-50%,0)}
+
+  .foot{font-size:12.5px;color:var(--muted);text-align:center;margin:18px 4px 0;line-height:1.5}
+
+  @media (prefers-reduced-motion:reduce){*{transition:none!important}}
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <header>
+    <div class="termbar"><span class="dot"></span> MT5 · ALGO BOT · PROJECT BRIEF</div>
+    <h1>Before I build your bot</h1>
+    <p>A few questions so I can scope it properly. Skip anything you're unsure about — we'll talk it through.</p>
+    <svg class="spark" width="190" height="64" viewBox="0 0 190 64" fill="none">
+      <g stroke="#2B3340" stroke-width="2">
+        <line x1="14" y1="20" x2="14" y2="50"/><line x1="30" y1="30" x2="30" y2="58"/>
+        <line x1="46" y1="14" x2="46" y2="44"/><line x1="62" y1="26" x2="62" y2="52"/>
+        <line x1="78" y1="10" x2="78" y2="40"/><line x1="94" y1="22" x2="94" y2="48"/>
+        <line x1="110" y1="34" x2="110" y2="60"/><line x1="126" y1="18" x2="126" y2="46"/>
+      </g>
+      <g stroke="#1FA855" stroke-width="2.4">
+        <line x1="142" y1="8" x2="142" y2="38"/><line x1="160" y1="16" x2="160" y2="44"/>
+        <line x1="178" y1="6" x2="178" y2="34"/>
+      </g>
+    </svg>
+  </header>
+
+  <div class="progress" role="status" aria-live="polite">
+    <div class="bar"><i id="barfill"></i></div>
+    <div class="pcount"><span id="answered">0</span>/<span id="total">0</span> answered</div>
+  </div>
+
+  <main id="form"></main>
+
+  <p class="foot">Done? Tap <strong>Send on WhatsApp</strong> to fire it straight back to me, or <strong>Copy answers</strong> and paste it anywhere.</p>
+</div>
+
+<div class="actions">
+  <div class="actions-inner">
+    <button class="btn-wa" id="waBtn">Send on WhatsApp</button>
+    <button class="btn-copy" id="copyBtn">Copy answers</button>
+  </div>
+</div>
+<div class="toast" id="toast"></div>
+
+<script>
+const SECTIONS = [
+  { name:"Strategy", q:[
+    {t:"What exact rules should the bot follow?", h:"Ideally as if/then steps — “if X and Y happen, open a buy/sell.”"},
+    {t:"What opens a trade — the entry trigger?"},
+    {t:"What closes a trade?", h:"Fixed take-profit / stop-loss, trailing stop, time-based, or a signal?"},
+    {t:"Is this your own strategy, a known one (ICT/SMC etc.), or from an indicator / signal source?"},
+    {t:"Does it need anything beyond raw price?", h:"News, indicators, multiple timeframes…"},
+  ]},
+  { name:"Market & settings", q:[
+    {t:"Which pairs / instruments?", h:"EURUSD, gold, indices…"},
+    {t:"Which timeframe(s)?"},
+    {t:"Roughly how many trades a day — and can it hold more than one position at once?"},
+  ]},
+  { name:"Risk", q:[
+    {t:"Fixed lot size, or risk-based (% of balance per trade)?"},
+    {t:"Max risk per trade / max daily loss / max open trades?"},
+    {t:"Any times or sessions to avoid?", h:"News releases, weekends, certain hours…"},
+  ]},
+  { name:"Integration — your part", q:[
+    {t:"What exactly does the “integration” you'll handle cover?", h:"Broker connection, hosting, feeding signals in, deployment?"},
+    {t:"Is my part only the strategy logic, or also placing the orders in MT5?"},
+    {t:"Native MT5 Expert Advisor (MQL5), or an external program (e.g. Python) connecting to MT5?"},
+    {t:"Where will it run — your own PC or a VPS?"},
+  ]},
+  { name:"Testing & account", q:[
+    {t:"Can we run it on a demo account first before going live?"},
+    {t:"Who provides the broker / account — and can I get a demo login to test against?"},
+    {t:"What does “it works” look like to you — how do we agree it's done?"},
+  ]},
+  { name:"Anything else", q:[
+    {t:"Anything else I should know? (optional)", h:"Examples, screenshots you'll send separately, deadlines, must-haves…"},
+  ]},
+];
+
+const formEl = document.getElementById('form');
+let n = 0;
+const fields = [];
+SECTIONS.forEach(sec=>{
+  const s = document.createElement('section');
+  const eb = document.createElement('div');
+  eb.className='eyebrow';
+  eb.innerHTML = sec.name + ' <span></span>';
+  s.appendChild(eb);
+  sec.q.forEach(item=>{
+    n++;
+    const num = 'Q'+String(n).padStart(2,'0');
+    const card = document.createElement('div');
+    card.className='q';
+    const id='f'+n;
+    card.innerHTML =
+      '<div class="qhead"><div class="qnum">'+num+'</div>'+
+      '<div style="flex:1"><label for="'+id+'">'+item.t+'</label>'+
+      (item.h?'<p class="hint">'+item.h+'</p>':'')+'</div></div>'+
+      '<textarea id="'+id+'" rows="1" placeholder="Type your answer…"></textarea>';
+    s.appendChild(card);
+    const ta = card.querySelector('textarea');
+    fields.push({num:num, q:item.t, el:ta, card:card});
+  });
+  formEl.appendChild(s);
+});
+
+document.getElementById('total').textContent = fields.length;
+
+function autoGrow(el){el.style.height='auto';el.style.height=(el.scrollHeight)+'px';}
+function refresh(){
+  let done=0;
+  fields.forEach(f=>{
+    const filled = f.el.value.trim().length>0;
+    if(filled) done++;
+    f.card.classList.toggle('done', filled);
+  });
+  document.getElementById('answered').textContent = done;
+  document.getElementById('barfill').style.width = (done/fields.length*100)+'%';
+}
+fields.forEach(f=>{
+  f.el.addEventListener('input',()=>{autoGrow(f.el);refresh();});
+});
+refresh();
+
+function buildText(){
+  let out = "MT5 BOT — PROJECT BRIEF\n(my answers)\n";
+  let lastSec = null, idx = 0;
+  SECTIONS.forEach(sec=>{
+    out += "\n— " + sec.name.toUpperCase() + " —\n";
+    sec.q.forEach(()=>{
+      const f = fields[idx++];
+      const a = f.el.value.trim();
+      out += "\n"+f.num+". "+f.q+"\n→ "+(a?a:"—")+"\n";
+    });
+  });
+  return out.trim();
+}
+
+function toast(msg){
+  const t=document.getElementById('toast');
+  t.textContent=msg;t.classList.add('show');
+  clearTimeout(t._t);t._t=setTimeout(()=>t.classList.remove('show'),2600);
+}
+
+document.getElementById('waBtn').addEventListener('click',()=>{
+  const url='https://wa.me/?text='+encodeURIComponent(buildText());
+  window.open(url,'_blank');
+});
+
+document.getElementById('copyBtn').addEventListener('click',async()=>{
+  const txt=buildText();
+  try{
+    await navigator.clipboard.writeText(txt);
+    toast('Answers copied — paste them to me');
+  }catch(e){
+    const ta=document.createElement('textarea');
+    ta.value=txt;ta.style.position='fixed';ta.style.opacity='0';
+    document.body.appendChild(ta);ta.select();
+    try{document.execCommand('copy');toast('Answers copied — paste them to me');}
+    catch(err){toast('Couldn\u2019t copy — select the text manually');}
+    document.body.removeChild(ta);
+  }
+});
+</script>
+</body>
+</html>
